@@ -1,0 +1,41 @@
+<div class="container">
+  <h2 class="page-title">电影列表</h2>
+  <app-movie-stats [movies]="movies"></app-movie-stats>
+  <div class="movie-grid">
+    <div
+      *ngFor="let movie of movies"
+      class="movie-card"
+      [class.active]="movie === selectedMovie"
+      (click)="onSelect(movie)"
+    >
+      <div class="movie-poster">
+        <img [src]="'picture/' + movie.id + '.jpg'" [alt]="movie.title">
+        <div class="poster-placeholder">
+          {{ movie.title }}
+        </div>
+      </div>
+      <div class="movie-info">
+        <h3 class="movie-title">{{ movie.title }}</h3>
+        <p class="movie-director">导演: {{ movie.director }}</p>
+        <p class="movie-date">上映日期: {{ movie.releaseDate | date: 'yyyy-MM-dd' }}</p>
+        <div class="movie-rating">
+          <span class="rating-label">评分:</span>
+          <span class="rating-value">{{ movie.rating }}</span>
+        </div>
+        <div class="movie-watched">
+          <span class="watched-label">已观影:</span>
+          <span class="watched-value" [class.watched]="movie.isWatched">
+            {{ movie.isWatched ? '是' : '否' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-movie-detail [(movie)]="selectedMovie"></app-movie-detail>
+  
+  <!-- 调试信息 -->
+  <div class="debug-info">
+    <h3>调试信息</h3>
+    <pre>{{ selectedMovie | json }}</pre>
+  </div>
+</div>
