@@ -1,0 +1,27 @@
+<div *ngIf="movie" class="selected-movie">
+  <div class="title-edit">
+    <h2 class="selected-title">
+      <input 
+        type="text" 
+        [(ngModel)]="movie.title" 
+        (ngModelChange)="onTitleChange(movie.title)"
+        class="title-input"
+      >
+    </h2>
+  </div>
+  <div class="selected-content">
+    <div class="selected-poster">
+      <img [src]="'picture/' + movie.id + '.jpg'" alt="{{ movie.title }}">
+      <div class="poster-placeholder" *ngIf="!movie.posterUrl">
+        {{ movie.title }}
+      </div>
+    </div>
+    <div class="selected-details">
+      <p><strong>导演:</strong> {{ movie.director }}</p>
+      <p><strong>上映日期:</strong> {{ movie.releaseDate | date: 'yyyy年MM月' }}</p>
+      <p><strong>评分:</strong> {{ movie.rating }}</p>
+      <p><strong>评分等级:</strong> {{ movie.rating | ratingLevel }}</p>
+      <p><strong>已观影:</strong> {{ movie.isWatched ? '是' : '否' }}</p>
+    </div>
+  </div>
+</div>
