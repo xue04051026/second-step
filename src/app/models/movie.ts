@@ -6,4 +6,10 @@ export interface Movie {
   rating: number;
   isWatched: boolean;
   posterUrl?: string;
+  genre?: string;
+  runtime?: number;
+  country?: string;
+  language?: string;
+  tagline?: string;
+  summary?: string;
 }

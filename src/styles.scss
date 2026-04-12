@@ -1,45 +1,79 @@
-@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap');
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+:root {
+  color-scheme: dark;
+  --bg-deep: #05070d;
+  --bg-panel: rgba(10, 13, 22, 0.92);
+  --text-main: #fff8e7;
+  --text-muted: rgba(255, 248, 225, 0.72);
+  --gold: #d4af37;
+  --gold-soft: #f6d878;
+  --line-soft: rgba(255, 255, 255, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   margin: 0;
-  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-  color: #ffffff;
   min-height: 100vh;
+  color: var(--text-main);
+  font-family: 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(212, 175, 55, 0.14), transparent 30%),
+    radial-gradient(circle at 20% 20%, rgba(196, 54, 54, 0.12), transparent 18%),
+    linear-gradient(180deg, #0b0e17 0%, #05070d 100%);
+  background-attachment: fixed;
 }
 
-/* 全局滚动条样式 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.65), transparent 90%);
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: none;
+}
+
+img {
+  max-width: 100%;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(103, 58, 183, 0.5);
-  border-radius: 4px;
+  background: rgba(212, 175, 55, 0.35);
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(103, 58, 183, 0.7);
-}
-
-/* 全局动画 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fade-in {
-  animation: fadeIn 0.5s ease-out;
+  background: rgba(212, 175, 55, 0.55);
 }

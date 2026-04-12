@@ -9,7 +9,7 @@
       (click)="onSelect(movie)"
     >
       <div class="movie-poster">
-        <img [src]="'picture/' + movie.id + '.jpg'" [alt]="movie.title">
+        <img [src]="movie.posterUrl || '/assets/default-poster.jpg'" [alt]="movie.title">
         <div class="poster-placeholder">
           {{ movie.title }}
         </div>

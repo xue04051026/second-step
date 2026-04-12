@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, NavigationEnd } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 interface BreadcrumbItem {
@@ -12,14 +11,12 @@ interface BreadcrumbItem {
 @Component({
   selector: 'app-breadcrumb',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatIconModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <nav class="breadcrumb" *ngIf="breadcrumbs.length > 0">
-      <a routerLink="/dashboard" class="home-link">
-        <mat-icon>home</mat-icon>
-      </a>
+      <a routerLink="/dashboard" class="home-link">首页</a>
       <span *ngFor="let item of breadcrumbs; let last = last" class="breadcrumb-item">
-        <mat-icon>chevron_right</mat-icon>
+        <span class="separator">/</span>
         <a *ngIf="!last" [routerLink]="item.url">{{ item.label }}</a>
         <span *ngIf="last" class="current">{{ item.label }}</span>
       </span>
@@ -29,46 +26,43 @@ interface BreadcrumbItem {
     .breadcrumb {
       display: flex;
       align-items: center;
-      padding: 12px 24px;
-      background-color: #f5f5f5;
-      font-size: 14px;
+      flex-wrap: wrap;
+      gap: 0.2rem;
+      padding: 0.9rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      color: rgba(255, 248, 225, 0.72);
+      font-size: 0.95rem;
     }
-    .home-link {
-      color: #666;
-      text-decoration: none;
-    }
-    .breadcrumb-item {
-      display: flex;
-      align-items: center;
-    }
+
+    .home-link,
     .breadcrumb-item a {
-      color: #1976d2;
+      color: #f6d878;
       text-decoration: none;
     }
-    .breadcrumb-item a:hover {
-      text-decoration: underline;
+
+    .breadcrumb-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
     }
-    .breadcrumb-item .current {
-      color: #666;
-    }
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      margin: 0 4px;
+
+    .separator,
+    .current {
+      color: rgba(255, 248, 225, 0.62);
     }
   `]
 })
 export class BreadcrumbComponent {
-  private router = inject(Router);
+  private readonly router = inject(Router);
 
   breadcrumbs: BreadcrumbItem[] = [];
 
-  private routeLabels: { [key: string]: string } = {
-    'dashboard': '首页',
-    'movies': '电影列表',
-    'add': '添加电影',
-    'about': '关于'
+  private readonly routeLabels: Record<string, string> = {
+    dashboard: '仪表盘',
+    movies: '电影列表',
+    add: '新增电影',
+    about: '关于'
   };
 
   constructor() {
@@ -77,24 +71,22 @@ export class BreadcrumbComponent {
       .subscribe(() => {
         this.breadcrumbs = this.buildBreadcrumbs();
       });
+
+    this.breadcrumbs = this.buildBreadcrumbs();
   }
 
   private buildBreadcrumbs(): BreadcrumbItem[] {
-    const url = this.router.url;
-    const segments = url.split('/').filter(s => s);
+    const url = this.router.url.split('?')[0];
+    const segments = url.split('/').filter(Boolean);
     const breadcrumbs: BreadcrumbItem[] = [];
     let currentUrl = '';
 
     for (const segment of segments) {
-      // 跳过查询参数
-      if (segment.includes('?')) break;
       currentUrl += `/${segment}`;
-      // 如果是数字ID，显示为"详情"
-      const label = /^\d+$/.test(segment)
-        ? '详情'
-        : this.routeLabels[segment] || segment;
+      const label = /^\d+$/.test(segment) ? '详情' : this.routeLabels[segment] || segment;
       breadcrumbs.push({ label, url: currentUrl });
     }
+
     return breadcrumbs;
   }
 }
