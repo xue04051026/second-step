@@ -14,7 +14,7 @@ interface BreadcrumbItem {
   imports: [CommonModule, RouterLink],
   template: `
     <nav class="breadcrumb" *ngIf="breadcrumbs.length > 0">
-      <a routerLink="/dashboard" class="home-link">首页</a>
+      <a routerLink="/dashboard" class="home-link">Home</a>
       <span *ngFor="let item of breadcrumbs; let last = last" class="breadcrumb-item">
         <span class="separator">/</span>
         <a *ngIf="!last" [routerLink]="item.url">{{ item.label }}</a>
@@ -59,10 +59,12 @@ export class BreadcrumbComponent {
   breadcrumbs: BreadcrumbItem[] = [];
 
   private readonly routeLabels: Record<string, string> = {
-    dashboard: '仪表盘',
-    movies: '电影列表',
-    add: '新增电影',
-    about: '关于'
+    dashboard: 'Dashboard',
+    movies: 'Movies',
+    directors: 'Directors',
+    genre: 'Genre',
+    add: 'Add',
+    about: 'About'
   };
 
   constructor() {
@@ -81,9 +83,18 @@ export class BreadcrumbComponent {
     const breadcrumbs: BreadcrumbItem[] = [];
     let currentUrl = '';
 
-    for (const segment of segments) {
+    for (let index = 0; index < segments.length; index += 1) {
+      const segment = segments[index];
       currentUrl += `/${segment}`;
-      const label = /^\d+$/.test(segment) ? '详情' : this.routeLabels[segment] || segment;
+
+      const isId = /^\d+$/.test(segment);
+      const previousSegment = index > 0 ? segments[index - 1] : '';
+      const label = isId
+        ? previousSegment === 'directors'
+          ? 'Director Detail'
+          : 'Movie Detail'
+        : this.routeLabels[segment] || decodeURIComponent(segment);
+
       breadcrumbs.push({ label, url: currentUrl });
     }
 

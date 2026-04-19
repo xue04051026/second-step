@@ -1,10 +1,13 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
-import { MessagePanelComponent } from './components/message-panel/message-panel.component';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { AuthService } from './services/auth.service';
+import { MessageService } from './services/message.service';
 import { MovieStateService } from './services/movie-state.service';
 import { UserService } from './services/user.service';
+import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
+import { MessagePanelComponent } from './components/message-panel/message-panel.component';
 
 @Component({
   selector: 'app-root',
@@ -17,25 +20,34 @@ import { UserService } from './services/user.service';
           <span class="brand-mark">CF</span>
           <div>
             <a class="brand-name" routerLink="/dashboard">CinemaFlow</a>
-            <p class="brand-subtitle">电影片单管理与展映式浏览体验</p>
+            <p class="brand-subtitle">Routing and multi-entity navigation demo</p>
           </div>
         </div>
 
         <nav class="nav-links">
-          <a routerLink="/dashboard" routerLinkActive="active-link" *ngIf="hasPermission('view_dashboard')">仪表盘</a>
-          <a routerLink="/movies" routerLinkActive="active-link" *ngIf="hasPermission('view_movies')">电影列表</a>
-          <a routerLink="/add" routerLinkActive="active-link" *ngIf="hasPermission('add_movie')">新增电影</a>
-          <a routerLink="/about" routerLinkActive="active-link" *ngIf="hasPermission('view_about')">关于</a>
+          <a routerLink="/dashboard" routerLinkActive="active-link" *ngIf="hasPermission('view_dashboard')">Dashboard</a>
+          <a routerLink="/movies" routerLinkActive="active-link" *ngIf="hasPermission('view_movies')">Movies</a>
+          <a routerLink="/directors" routerLinkActive="active-link" *ngIf="hasPermission('view_directors')">Directors</a>
+          <a routerLink="/add" routerLinkActive="active-link" *ngIf="hasPermission('add_movie')">Add Movie</a>
+          <a routerLink="/about" routerLinkActive="active-link" *ngIf="hasPermission('view_about')">About</a>
         </nav>
 
-        <label class="role-switcher">
-          <span>当前角色</span>
-          <select [value]="currentUser.role" (change)="switchRole($any($event.target).value)">
-            <option value="admin">管理员</option>
-            <option value="user">普通用户</option>
-            <option value="guest">访客</option>
-          </select>
-        </label>
+        <div class="right-tools">
+          <div class="auth-actions">
+            <button type="button" *ngIf="!authService.isLoggedIn" (click)="showLogin()">Login</button>
+            <button type="button" *ngIf="authService.isLoggedIn" (click)="logout()">Logout</button>
+            <small>{{ authService.isLoggedIn ? 'Authenticated' : 'Not Logged In' }}</small>
+          </div>
+
+          <label class="role-switcher">
+            <span>Role</span>
+            <select [value]="currentUser.role" (change)="switchRole($any($event.target).value)">
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
+              <option value="guest">Guest</option>
+            </select>
+          </label>
+        </div>
       </header>
 
       <app-breadcrumb></app-breadcrumb>
@@ -126,6 +138,34 @@ import { UserService } from './services/user.service';
       color: #fff;
     }
 
+    .right-tools {
+      display: flex;
+      align-items: end;
+      gap: 1rem;
+    }
+
+    .auth-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      align-items: flex-end;
+      color: rgba(255, 248, 225, 0.72);
+    }
+
+    .auth-actions button {
+      min-height: 36px;
+      padding: 0 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff8e7;
+      cursor: pointer;
+    }
+
+    .auth-actions small {
+      font-size: 0.75rem;
+    }
+
     .role-switcher {
       display: flex;
       flex-direction: column;
@@ -149,7 +189,7 @@ import { UserService } from './services/user.service';
       padding-bottom: 2rem;
     }
 
-    @media (max-width: 920px) {
+    @media (max-width: 980px) {
       .app-header {
         flex-direction: column;
         align-items: stretch;
@@ -159,8 +199,13 @@ import { UserService } from './services/user.service';
         justify-content: flex-start;
       }
 
-      .role-switcher {
-        width: fit-content;
+      .right-tools {
+        align-items: stretch;
+        justify-content: space-between;
+      }
+
+      .auth-actions {
+        align-items: flex-start;
       }
     }
   `]
@@ -168,11 +213,26 @@ import { UserService } from './services/user.service';
 export class AppComponent {
   private readonly userService = inject(UserService);
   private readonly movieStateService = inject(MovieStateService);
+  private readonly router = inject(Router);
+  private readonly messageService = inject(MessageService);
+
+  readonly authService = inject(AuthService);
 
   currentUser = this.userService.getCurrentUser();
 
   constructor() {
     this.movieStateService.load();
+
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe(event => {
+        this.messageService.add(`Router: navigated to ${event.urlAfterRedirects}`);
+
+        const queryParams = this.router.parseUrl(event.urlAfterRedirects).queryParams;
+        if (queryParams['loginRequired'] === 'true') {
+          this.messageService.add('Login required: use admin/admin to access Add Movie.');
+        }
+      });
   }
 
   hasPermission(permission: string): boolean {
@@ -182,5 +242,23 @@ export class AppComponent {
   switchRole(role: 'admin' | 'user' | 'guest'): void {
     this.userService.switchRole(role);
     this.currentUser = this.userService.getCurrentUser();
+  }
+
+  showLogin(): void {
+    const username = window.prompt('Username', 'admin')?.trim() ?? '';
+    if (!username) {
+      return;
+    }
+
+    const password = window.prompt('Password', 'admin') ?? '';
+    const loggedIn = this.authService.login(username, password);
+    this.messageService.add(
+      loggedIn ? `Auth: logged in as ${username}` : 'Auth: login failed, expected admin/admin'
+    );
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.messageService.add('Auth: logged out');
   }
 }

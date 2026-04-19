@@ -14,179 +14,158 @@ export class MovieService {
   private movies: Movie[] = [
     {
       id: 1,
-      title: '肖申克的救赎',
-      director: '弗兰克·德拉邦特',
-      releaseDate: new Date('1994-09-23'),
+      title: 'Interstellar',
+      director: 'Christopher Nolan',
+      directorId: 1,
+      releaseDate: new Date('2014-11-07'),
       rating: 9.3,
       isWatched: true,
-      genre: '剧情 / 犯罪',
-      runtime: 142,
-      country: '美国',
-      language: '英语',
-      tagline: '希望，是困境中最温柔的反击。',
-      summary: '银行家安迪在监狱中与瑞德建立深厚友谊，在漫长岁月中守住希望，完成自我救赎。',
-      posterUrl: 'https://upload.wikimedia.org/wikipedia/en/8/81/ShawshankRedemptionMoviePoster.jpg'
+      genre: 'Sci-Fi',
+      runtime: 169,
+      country: 'USA / UK',
+      language: 'English',
+      tagline: 'Love is the one thing that transcends time and space.',
+      summary: 'A team of explorers travels through a wormhole in space to ensure humanity has a future.',
+      posterUrl: '/assets/images/1.jpg'
     },
     {
       id: 2,
-      title: '霸王别姬',
-      director: '陈凯歌',
-      releaseDate: new Date('1993-01-01'),
-      rating: 9.5,
+      title: 'Inception',
+      director: 'Christopher Nolan',
+      directorId: 1,
+      releaseDate: new Date('2010-07-16'),
+      rating: 9.2,
       isWatched: true,
-      genre: '剧情 / 爱情',
-      runtime: 171,
-      country: '中国大陆 / 中国香港',
-      language: '汉语普通话',
-      tagline: '一曲人生悲欢，半部时代浮沉。',
-      summary: '两位京剧伶人的命运在时代浪潮中反复交织，戏里戏外皆是执念与离散。',
-      posterUrl: 'https://image.tmdb.org/t/p/original/yWG2toY0QuGmkdCrffm20GTLZ8D.jpg'
+      genre: 'Sci-Fi',
+      runtime: 148,
+      country: 'USA / UK',
+      language: 'English',
+      tagline: 'Your mind is the scene of the crime.',
+      summary: 'A skilled thief enters people’s dreams to steal secrets and attempts one final high-risk mission.',
+      posterUrl: '/assets/images/2.jpg'
     },
     {
       id: 3,
-      title: '阿甘正传',
-      director: '罗伯特·泽米吉斯',
-      releaseDate: new Date('1994-07-06'),
+      title: 'The Dark Knight',
+      director: 'Christopher Nolan',
+      directorId: 1,
+      releaseDate: new Date('2008-07-18'),
       rating: 9.1,
-      isWatched: true,
-      genre: '剧情 / 爱情',
-      runtime: 142,
-      country: '美国',
-      language: '英语',
-      tagline: '人生就像一盒巧克力。',
-      summary: '阿甘以近乎天真的坚定穿越美国数十年历史，在奔跑与守候中完成自己的人生传奇。',
-      posterUrl: 'https://upload.wikimedia.org/wikipedia/en/6/67/Forrest_Gump_poster.jpg'
+      isWatched: false,
+      genre: 'Action',
+      runtime: 152,
+      country: 'USA / UK',
+      language: 'English',
+      tagline: 'Welcome to a world without rules.',
+      summary: 'Batman, Gordon, and Dent push back against organized crime while facing the chaos created by the Joker.',
+      posterUrl: '/assets/images/3.jpg'
     },
     {
       id: 4,
-      title: '泰坦尼克号',
-      director: '詹姆斯·卡梅隆',
-      releaseDate: new Date('1997-12-19'),
-      rating: 9.4,
-      isWatched: false,
-      genre: '剧情 / 爱情 / 灾难',
-      runtime: 194,
-      country: '美国',
-      language: '英语',
-      tagline: '永恒不在海上，而在人心里。',
-      summary: '杰克与露丝在豪华邮轮上短暂相遇，在命运巨变前点亮彼此生命中最耀眼的一段时光。',
-      posterUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/18/Titanic_%281997_film%29_poster.png/500px-Titanic_%281997_film%29_poster.png'
+      title: 'Crouching Tiger, Hidden Dragon',
+      director: 'Ang Lee',
+      directorId: 2,
+      releaseDate: new Date('2000-07-07'),
+      rating: 8.9,
+      isWatched: true,
+      genre: 'Wuxia',
+      runtime: 120,
+      country: 'China / Taiwan / Hong Kong',
+      language: 'Mandarin',
+      tagline: 'A timeless tale of love and honor.',
+      summary: 'A legendary sword and tangled relationships draw warriors into a story of duty, desire, and sacrifice.',
+      posterUrl: '/assets/images/4.jpg'
     },
     {
       id: 5,
-      title: '千与千寻',
-      director: '宫崎骏',
-      releaseDate: new Date('2001-07-20'),
-      rating: 9.2,
-      isWatched: true,
-      genre: '动画 / 奇幻 / 冒险',
-      runtime: 125,
-      country: '日本',
-      language: '日语',
-      tagline: '在神隐世界里，勇气会发光。',
-      summary: '误入神灵世界的千寻为了拯救父母与自己，一步步学会勇气、责任与温柔。',
-      posterUrl: 'https://upload.wikimedia.org/wikipedia/en/d/db/Spirited_Away_Japanese_poster.png'
+      title: 'Life of Pi',
+      director: 'Ang Lee',
+      directorId: 2,
+      releaseDate: new Date('2012-11-21'),
+      rating: 8.8,
+      isWatched: false,
+      genre: 'Drama',
+      runtime: 127,
+      country: 'USA / Taiwan',
+      language: 'English',
+      tagline: 'Believe the unbelievable.',
+      summary: 'After a shipwreck, a young man survives on a lifeboat with a Bengal tiger, confronting faith and survival.',
+      posterUrl: '/assets/images/5.jpg'
     },
     {
       id: 6,
-      title: '盗梦空间',
-      director: '克里斯托弗·诺兰',
-      releaseDate: new Date('2010-07-16'),
-      rating: 9.0,
-      isWatched: false,
-      genre: '科幻 / 动作 / 悬疑',
-      runtime: 148,
-      country: '美国 / 英国',
-      language: '英语',
-      tagline: '梦境越深，真相越近。',
-      summary: '一支特工团队潜入层层梦境执行高风险任务，在现实与意识边界中逼近真相。',
-      posterUrl: 'https://image.tmdb.org/t/p/original/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg'
+      title: 'Spirited Away',
+      director: 'Hayao Miyazaki',
+      directorId: 3,
+      releaseDate: new Date('2001-07-20'),
+      rating: 9.4,
+      isWatched: true,
+      genre: 'Animation',
+      runtime: 125,
+      country: 'Japan',
+      language: 'Japanese',
+      tagline: 'A coming-of-age in a spirit world.',
+      summary: 'A girl trapped in a mysterious spirit realm works to save her parents and find her way back.',
+      posterUrl: '/assets/images/6.jpg'
     },
     {
       id: 7,
-      title: '星际穿越',
-      director: '克里斯托弗·诺兰',
-      releaseDate: new Date('2014-11-07'),
-      rating: 9.4,
+      title: 'My Neighbor Totoro',
+      director: 'Hayao Miyazaki',
+      directorId: 3,
+      releaseDate: new Date('1988-04-16'),
+      rating: 8.9,
       isWatched: true,
-      genre: '科幻 / 冒险 / 剧情',
-      runtime: 169,
-      country: '美国 / 英国 / 加拿大',
-      language: '英语',
-      tagline: '爱，是穿越时空仍然成立的引力。',
-      summary: '在地球生态濒临崩溃之际，一位前宇航员踏上跨星系旅程，为人类寻找新家园。',
-      posterUrl: 'https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg'
+      genre: 'Animation',
+      runtime: 86,
+      country: 'Japan',
+      language: 'Japanese',
+      tagline: 'A gentle childhood fantasy.',
+      summary: 'Two sisters in rural Japan encounter magical woodland spirits while adjusting to a new life.',
+      posterUrl: '/assets/images/1.jpg'
     },
     {
       id: 8,
-      title: '爱乐之城',
-      director: '达米恩·查泽雷',
-      releaseDate: new Date('2016-12-09'),
-      rating: 8.8,
+      title: 'In the Mood for Love',
+      director: 'Wong Kar-wai',
+      directorId: 4,
+      releaseDate: new Date('2000-09-29'),
+      rating: 8.7,
       isWatched: false,
-      genre: '剧情 / 爱情 / 歌舞',
-      runtime: 128,
-      country: '美国',
-      language: '英语',
-      tagline: '献给所有在霓虹里追梦的人。',
-      summary: '钢琴手与演员在洛杉矶相遇，爱情与理想在繁华夜色中彼此照亮，也彼此考验。',
-      posterUrl: 'https://upload.wikimedia.org/wikipedia/en/a/ab/La_La_Land_%28film%29.png'
+      genre: 'Drama',
+      runtime: 98,
+      country: 'Hong Kong, China',
+      language: 'Cantonese',
+      tagline: 'A restrained romance in neon shadows.',
+      summary: 'Two neighbors discover their spouses’ affair and gradually form a complex emotional bond.',
+      posterUrl: '/assets/images/2.jpg'
     },
     {
       id: 9,
-      title: '教父',
-      director: '弗朗西斯·福特·科波拉',
-      releaseDate: new Date('1972-03-24'),
-      rating: 9.3,
-      isWatched: true,
-      genre: '剧情 / 犯罪',
-      runtime: 175,
-      country: '美国',
-      language: '英语 / 意大利语',
-      tagline: '一部改变黑帮电影叙事方式的经典。',
-      summary: '科里昂家族在权力、忠诚与亲情之间维系帝国，也见证迈克尔一步步走向命运中心。',
-      posterUrl: 'https://upload.wikimedia.org/wikipedia/en/1/1c/Godfather_ver1.jpg'
-    },
-    {
-      id: 10,
-      title: '黑暗骑士',
-      director: '克里斯托弗·诺兰',
-      releaseDate: new Date('2008-07-18'),
-      rating: 9.2,
+      title: 'Chungking Express',
+      director: 'Wong Kar-wai',
+      directorId: 4,
+      releaseDate: new Date('1994-07-14'),
+      rating: 8.6,
       isWatched: false,
-      genre: '剧情 / 动作 / 犯罪',
-      runtime: 152,
-      country: '美国 / 英国',
-      language: '英语',
-      tagline: '当秩序失控，英雄也必须面对代价。',
-      summary: '蝙蝠侠与戈登、哈维联手打击犯罪，却在小丑制造的混乱中被迫面对人性的极限。',
-      posterUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1c/The_Dark_Knight_%282008_film%29.jpg/500px-The_Dark_Knight_%282008_film%29.jpg'
-    },
-    {
-      id: 11,
-      title: '黑客帝国',
-      director: '莉莉·沃卓斯基 / 拉娜·沃卓斯基',
-      releaseDate: new Date('1999-03-31'),
-      rating: 9.0,
-      isWatched: false,
-      genre: '科幻 / 动作',
-      runtime: 136,
-      country: '美国 / 澳大利亚',
-      language: '英语',
-      tagline: '如果世界是程序，你敢醒来吗？',
-      summary: '程序员尼奥被引入真实世界，逐渐意识到现实只是一个巨大系统构建出的幻象。',
-      posterUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/d/db/The_Matrix.png/500px-The_Matrix.png'
+      genre: 'Romance',
+      runtime: 102,
+      country: 'Hong Kong, China',
+      language: 'Cantonese',
+      tagline: 'Two stories of loneliness and connection.',
+      summary: 'Two drifting policemen and two women cross paths in a city where timing changes everything.',
+      posterUrl: '/assets/images/3.jpg'
     }
   ];
 
-  private nextId = 12;
+  private nextId = 10;
 
   getMovies(): Observable<Movie[]> {
     return of(this.movies.map(movie => this.withPoster(movie))).pipe(
       delay(200),
-      tap(list => this.messageService.add(`MovieService: 已加载 ${list.length} 部电影`)),
+      tap(list => this.messageService.add(`MovieService: loaded ${list.length} movies`)),
       catchError(error => {
-        this.messageService.add(`MovieService: 加载失败 - ${this.describeError(error)}`);
+        this.messageService.add(`MovieService: load failed - ${this.describeError(error)}`);
         return of([]);
       })
     );
@@ -201,11 +180,11 @@ export class MovieService {
       delay(150),
       tap(movie => {
         this.messageService.add(
-          movie ? `MovieService: 查询到电影 ${movie.title}` : `MovieService: id=${id} 未找到`
+          movie ? `MovieService: found movie ${movie.title}` : `MovieService: movie id=${id} not found`
         );
       }),
       catchError(error => {
-        this.messageService.add(`MovieService: 查询失败 - ${this.describeError(error)}`);
+        this.messageService.add(`MovieService: query failed - ${this.describeError(error)}`);
         return of(undefined);
       })
     );
@@ -216,6 +195,7 @@ export class MovieService {
       const newMovie: Movie = {
         ...movie,
         id: this.nextId++,
+        directorId: this.resolveDirectorId(movie.directorId, movie.director),
         posterUrl: movie.posterUrl || this.fallbackPoster
       };
 
@@ -223,9 +203,9 @@ export class MovieService {
       return of(this.withPoster(newMovie));
     }).pipe(
       delay(150),
-      tap(created => this.messageService.add(`MovieService: 已新增电影 ${created.title}`)),
+      tap(created => this.messageService.add(`MovieService: added movie ${created.title}`)),
       catchError(error => {
-        this.messageService.add(`MovieService: 新增失败 - ${this.describeError(error)}`);
+        this.messageService.add(`MovieService: add failed - ${this.describeError(error)}`);
         return throwError(() => error);
       })
     );
@@ -233,14 +213,17 @@ export class MovieService {
 
   updateMovie(updatedMovie: Movie): Observable<Movie> {
     return defer(() => {
-      const movie = this.withPoster(updatedMovie);
+      const movie = this.withPoster({
+        ...updatedMovie,
+        directorId: this.resolveDirectorId(updatedMovie.directorId, updatedMovie.director)
+      });
       this.movies = this.movies.map(item => (item.id === movie.id ? movie : item));
       return of(movie);
     }).pipe(
       delay(150),
-      tap(movie => this.messageService.add(`MovieService: 已更新电影 ${movie.title}`)),
+      tap(movie => this.messageService.add(`MovieService: updated movie ${movie.title}`)),
       catchError(error => {
-        this.messageService.add(`MovieService: 更新失败 - ${this.describeError(error)}`);
+        this.messageService.add(`MovieService: update failed - ${this.describeError(error)}`);
         return throwError(() => error);
       })
     );
@@ -258,14 +241,24 @@ export class MovieService {
       delay(150),
       tap(deleted => {
         this.messageService.add(
-          deleted ? `MovieService: 已删除电影 ${deletedTitle}` : `MovieService: id=${id} 删除失败`
+          deleted ? `MovieService: removed movie ${deletedTitle}` : `MovieService: remove failed, id=${id}`
         );
       }),
       catchError(error => {
-        this.messageService.add(`MovieService: 删除失败 - ${this.describeError(error)}`);
+        this.messageService.add(`MovieService: remove failed - ${this.describeError(error)}`);
         return throwError(() => error);
       })
     );
+  }
+
+  private resolveDirectorId(directorId: number, directorName: string): number {
+    if (directorId > 0) {
+      return directorId;
+    }
+
+    const normalizedName = directorName.trim().toLowerCase();
+    const directMatch = this.movies.find(movie => movie.director.toLowerCase() === normalizedName);
+    return directMatch?.directorId ?? 0;
   }
 
   private withPoster(movie: Movie): Movie {

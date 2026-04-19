@@ -12,14 +12,30 @@ export interface User {
   providedIn: 'root'
 })
 export class UserService {
-  private currentUserSubject = new BehaviorSubject<User>({
-    id: 1,
-    username: '管理员',
-    role: 'admin',
-    permissions: ['view_dashboard', 'view_movies', 'add_movie', 'view_about']
-  });
+  private readonly users: Record<User['role'], User> = {
+    admin: {
+      id: 1,
+      username: 'Admin',
+      role: 'admin',
+      permissions: ['view_dashboard', 'view_movies', 'view_directors', 'add_movie', 'view_about']
+    },
+    user: {
+      id: 2,
+      username: 'User',
+      role: 'user',
+      permissions: ['view_dashboard', 'view_movies', 'view_directors', 'view_about']
+    },
+    guest: {
+      id: 3,
+      username: 'Guest',
+      role: 'guest',
+      permissions: ['view_movies', 'view_directors']
+    }
+  };
 
-  currentUser$: Observable<User> = this.currentUserSubject.asObservable();
+  private readonly currentUserSubject = new BehaviorSubject<User>(this.users.admin);
+
+  readonly currentUser$: Observable<User> = this.currentUserSubject.asObservable();
 
   getCurrentUser(): User {
     return this.currentUserSubject.value;
@@ -32,30 +48,10 @@ export class UserService {
 
   hasAnyPermission(permissions: string[]): boolean {
     const user = this.currentUserSubject.value;
-    return permissions.some(p => user.permissions.includes(p));
+    return permissions.some(permission => user.permissions.includes(permission));
   }
 
-  switchRole(role: 'admin' | 'user' | 'guest'): void {
-    const users: { [key: string]: User } = {
-      admin: {
-        id: 1,
-        username: '管理员',
-        role: 'admin',
-        permissions: ['view_dashboard', 'view_movies', 'add_movie', 'view_about']
-      },
-      user: {
-        id: 2,
-        username: '普通用户',
-        role: 'user',
-        permissions: ['view_dashboard', 'view_movies', 'view_about']
-      },
-      guest: {
-        id: 3,
-        username: '访客',
-        role: 'guest',
-        permissions: ['view_movies']
-      }
-    };
-    this.currentUserSubject.next(users[role]);
+  switchRole(role: User['role']): void {
+    this.currentUserSubject.next(this.users[role]);
   }
 }
