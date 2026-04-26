@@ -4,7 +4,6 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { combineLatest, map, of, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DirectorService } from '../../services/director.service';
-import { MovieService } from '../../services/movie.service';
 
 @Component({
   selector: 'app-director-detail',
@@ -176,7 +175,6 @@ import { MovieService } from '../../services/movie.service';
 export class DirectorDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly directorService = inject(DirectorService);
-  private readonly movieService = inject(MovieService);
 
   readonly location = inject(Location);
 
@@ -190,9 +188,7 @@ export class DirectorDetailComponent {
   );
 
   readonly directedMovies$ = this.currentId$.pipe(
-    switchMap(directorId => this.movieService.getMovies().pipe(
-      map(movies => movies.filter(movie => movie.directorId === directorId))
-    ))
+    switchMap(directorId => this.directorService.getDirectorMovies(directorId))
   );
 
   readonly navigation$ = combineLatest([

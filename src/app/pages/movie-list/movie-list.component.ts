@@ -2,10 +2,11 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { combineLatest, map } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, map, switchMap } from 'rxjs';
 import { Movie } from '../../models/movie';
 import { RatingLevelPipe } from '../../pipes/rating-level.pipe';
 import { MovieStateService } from '../../services/movie-state.service';
+import { MovieService } from '../../services/movie.service';
 
 @Component({
   selector: 'app-movie-list',
@@ -76,8 +77,32 @@ import { MovieStateService } from '../../services/movie-state.service';
           </div>
         </section>
 
+        <section class="batch-actions" *ngIf="vm.filteredMovies.length > 0">
+          <label>
+            <input
+              type="checkbox"
+              [checked]="vm.filteredMovies.length > 0 && selectedIds.size === vm.filteredMovies.length"
+              (change)="toggleAll($any($event.target).checked, vm.filteredMovies)"
+            />
+            <span>Select all</span>
+          </label>
+
+          <button type="button" [disabled]="selectedIds.size === 0" (click)="deleteSelected()">
+            Delete Selected ({{ selectedIds.size }})
+          </button>
+        </section>
+
         <section class="movie-grid" *ngIf="vm.filteredMovies.length > 0; else emptyState">
           <article class="movie-card" *ngFor="let movie of vm.filteredMovies; let i = index" [style.animationDelay.ms]="i * 60">
+            <label class="select-box">
+              <input
+                type="checkbox"
+                [checked]="selectedIds.has(movie.id)"
+                (change)="toggleSelection(movie.id)"
+              />
+              <span>Select</span>
+            </label>
+
             <div class="poster">
               <img [src]="movie.posterUrl || defaultPoster" [alt]="movie.title" (error)="handlePosterError($event)" />
             </div>
@@ -193,6 +218,40 @@ import { MovieStateService } from '../../services/movie-state.service';
       gap: 1rem;
     }
 
+    .batch-actions {
+      min-height: 58px;
+      padding: 0.8rem 1rem;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(8, 11, 19, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      color: #fff8e7;
+    }
+
+    .batch-actions label {
+      display: inline-flex;
+      grid-template-columns: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .batch-actions button {
+      min-height: 40px;
+      padding: 0 1rem;
+      border-radius: 999px;
+      background: rgba(195, 58, 58, 0.26);
+      color: #fff8e7;
+      cursor: pointer;
+    }
+
+    .batch-actions button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
     .genre-tags {
       display: flex;
       flex-wrap: wrap;
@@ -264,6 +323,7 @@ import { MovieStateService } from '../../services/movie-state.service';
     }
 
     .movie-card {
+      position: relative;
       border-radius: 24px;
       border: 1px solid rgba(255, 255, 255, 0.08);
       background:
@@ -272,6 +332,23 @@ import { MovieStateService } from '../../services/movie-state.service';
       overflow: hidden;
       box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
       animation: riseIn 0.5s ease both;
+    }
+
+    .select-box {
+      position: absolute;
+      z-index: 2;
+      top: 0.75rem;
+      left: 0.75rem;
+      display: inline-flex;
+      grid-template-columns: none;
+      align-items: center;
+      gap: 0.45rem;
+      min-height: 34px;
+      padding: 0 0.65rem;
+      border-radius: 999px;
+      background: rgba(5, 7, 13, 0.76);
+      color: #fff8e7;
+      backdrop-filter: blur(10px);
     }
 
     .poster {
@@ -403,35 +480,51 @@ import { MovieStateService } from '../../services/movie-state.service';
 })
 export class MovieListComponent {
   private readonly movieStateService = inject(MovieStateService);
+  private readonly movieService = inject(MovieService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly refreshSubject = new BehaviorSubject<void>(undefined);
 
-  readonly defaultPoster = '/assets/default-poster.jpg';
+  readonly defaultPoster = 'assets/default-poster.jpg';
 
   searchTerm = '';
   currentGenre = '';
   sortBy = 'rating';
   sortOrder = 'desc';
+  selectedIds = new Set<number>();
 
   readonly genres$ = this.movieStateService.movies$.pipe(
     map(movies => [...new Set(movies.map(movie => movie.genre))].sort((a, b) => a.localeCompare(b)))
   );
 
   readonly viewModel$ = combineLatest([
-    this.movieStateService.movies$,
     this.route.paramMap,
-    this.route.queryParamMap
+    this.route.queryParamMap,
+    this.refreshSubject
   ]).pipe(
-    map(([movies, paramMap, queryParamMap]) => {
+    switchMap(([paramMap, queryParamMap]) => {
       this.currentGenre = paramMap.get('genre') || '';
       this.searchTerm = queryParamMap.get('search') || '';
       this.sortBy = queryParamMap.get('sortBy') || 'rating';
       this.sortOrder = queryParamMap.get('sortOrder') || 'desc';
 
-      return {
-        allMovies: movies,
-        filteredMovies: this.filterMovies(movies)
-      };
+      const movies$ = this.currentGenre
+        ? this.movieStateService.movies$.pipe(
+          switchMap(() => this.movieService.getMoviesByGenre(this.currentGenre))
+        )
+        : this.movieStateService.movies$;
+
+      return movies$.pipe(
+        map(movies => {
+          const visibleIds = new Set(movies.map(movie => movie.id));
+          this.selectedIds = new Set([...this.selectedIds].filter(id => visibleIds.has(id)));
+
+          return {
+            allMovies: movies,
+            filteredMovies: this.filterMovies(movies)
+          };
+        })
+      );
     })
   );
 
@@ -468,7 +561,38 @@ export class MovieListComponent {
       return;
     }
 
-    this.movieStateService.delete(id).subscribe();
+    this.movieStateService.delete(id).subscribe({
+      next: () => this.refreshSubject.next()
+    });
+  }
+
+  toggleSelection(id: number): void {
+    const nextSelection = new Set(this.selectedIds);
+    if (nextSelection.has(id)) {
+      nextSelection.delete(id);
+    } else {
+      nextSelection.add(id);
+    }
+    this.selectedIds = nextSelection;
+  }
+
+  toggleAll(checked: boolean, movies: Movie[]): void {
+    this.selectedIds = checked ? new Set(movies.map(movie => movie.id)) : new Set<number>();
+  }
+
+  deleteSelected(): void {
+    if (this.selectedIds.size === 0 || !window.confirm(`Delete ${this.selectedIds.size} selected movies?`)) {
+      return;
+    }
+
+    const ids = [...this.selectedIds];
+    forkJoin(ids.map(id => this.movieStateService.delete(id))).subscribe({
+      next: () => {
+        this.selectedIds = new Set<number>();
+        this.movieStateService.load(true);
+        this.refreshSubject.next();
+      }
+    });
   }
 
   private filterMovies(movies: Movie[]): Movie[] {

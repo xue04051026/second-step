@@ -4,12 +4,13 @@ import { RouterLink } from '@angular/router';
 import { combineLatest, map } from 'rxjs';
 import { DirectorService } from '../../services/director.service';
 import { MovieStateService } from '../../services/movie-state.service';
+import { MovieSearchComponent } from '../../components/movie-search/movie-search.component';
 import { MovieStatsComponent } from '../../components/movie-stats/movie-stats.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, MovieStatsComponent],
+  imports: [CommonModule, RouterLink, MovieStatsComponent, MovieSearchComponent],
   template: `
     <ng-container *ngIf="viewModel$ | async as vm; else loadingState">
       <section class="dashboard-shell">
@@ -25,11 +26,17 @@ import { MovieStatsComponent } from '../../components/movie-stats/movie-stats.co
           </div>
 
           <article class="hero-feature">
-            <h2>{{ heroMovie.title }}</h2>
-            <p>{{ heroMovie.tagline }}</p>
-            <div class="hero-meta">
-              <span>{{ heroMovie.genre }}</span>
-              <strong>{{ heroMovie.rating }}</strong>
+            <div class="hero-poster">
+              <img [src]="heroMovie.posterUrl || defaultPoster" [alt]="heroMovie.title" (error)="handlePosterError($event)" />
+            </div>
+
+            <div class="hero-feature-copy">
+              <h2>{{ heroMovie.title }}</h2>
+              <p>{{ heroMovie.tagline }}</p>
+              <div class="hero-meta">
+                <span>{{ heroMovie.genre }}</span>
+                <strong>{{ heroMovie.rating }}</strong>
+              </div>
             </div>
           </article>
         </header>
@@ -45,8 +52,11 @@ import { MovieStatsComponent } from '../../components/movie-stats/movie-stats.co
 
             <div class="recent-grid">
               <a *ngFor="let movie of vm.recentMovies" [routerLink]="['/movies', movie.id]">
-                <strong>{{ movie.title }}</strong>
-                <small>{{ movie.director }}</small>
+                <img [src]="movie.posterUrl || defaultPoster" [alt]="movie.title" (error)="handlePosterError($event)" />
+                <div>
+                  <strong>{{ movie.title }}</strong>
+                  <small>{{ movie.director }}</small>
+                </div>
                 <span>{{ movie.releaseDate | date: 'yyyy' }}</span>
               </a>
             </div>
@@ -66,6 +76,8 @@ import { MovieStatsComponent } from '../../components/movie-stats/movie-stats.co
             </div>
           </article>
         </section>
+
+        <app-movie-search></app-movie-search>
       </section>
     </ng-container>
 
@@ -160,12 +172,37 @@ import { MovieStatsComponent } from '../../components/movie-stats/movie-stats.co
     }
 
     .hero-feature {
+      display: grid;
+      grid-template-columns: 138px minmax(0, 1fr);
+      gap: 1rem;
+      align-items: stretch;
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.08);
       padding: 1rem;
       background:
         linear-gradient(180deg, rgba(212, 175, 55, 0.18), rgba(255, 255, 255, 0.03)),
         rgba(10, 12, 20, 0.82);
+    }
+
+    .hero-poster {
+      aspect-ratio: 2 / 3;
+      overflow: hidden;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #2d2417, #111);
+    }
+
+    .hero-poster img,
+    .recent-grid img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hero-feature-copy {
+      min-width: 0;
+      display: grid;
+      align-content: center;
     }
 
     .hero-feature h2 {
@@ -238,6 +275,24 @@ import { MovieStatsComponent } from '../../components/movie-stats/movie-stats.co
       color: #fff8e7;
     }
 
+    .recent-grid a {
+      grid-template-columns: 56px minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
+    .recent-grid img {
+      width: 56px;
+      height: 78px;
+      border-radius: 8px;
+      background: #111;
+    }
+
+    .recent-grid div {
+      min-width: 0;
+      display: grid;
+      gap: 0.35rem;
+    }
+
     .recent-grid small,
     .director-grid small {
       color: rgba(255, 248, 225, 0.72);
@@ -259,12 +314,23 @@ import { MovieStatsComponent } from '../../components/movie-stats/movie-stats.co
       .dashboard-shell {
         padding: 1rem;
       }
+
+      .hero-feature,
+      .recent-grid a {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-poster {
+        max-height: 360px;
+      }
     }
   `]
 })
 export class DashboardComponent {
   private readonly movieStateService = inject(MovieStateService);
   private readonly directorService = inject(DirectorService);
+
+  readonly defaultPoster = 'assets/default-poster.jpg';
 
   readonly viewModel$ = combineLatest([
     this.movieStateService.movies$,
@@ -276,4 +342,8 @@ export class DashboardComponent {
       topDirectors: directors.slice(0, 4)
     }))
   );
+
+  handlePosterError(event: Event): void {
+    (event.target as HTMLImageElement).src = this.defaultPoster;
+  }
 }

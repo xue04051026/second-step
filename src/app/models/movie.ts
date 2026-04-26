@@ -13,4 +13,5 @@ export interface Movie {
   language?: string;
   tagline?: string;
   summary?: string;
+  status?: 'showing' | 'archived' | string;
 }

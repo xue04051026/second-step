@@ -1,16 +1,18 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { catchError, combineLatest, map, of, switchMap, tap } from 'rxjs';
 import { Movie } from '../../models/movie';
 import { MessageService } from '../../services/message.service';
 import { MovieStateService } from '../../services/movie-state.service';
+import { MovieService } from '../../services/movie.service';
 import { RatingLevelPipe } from '../../pipes/rating-level.pipe';
 
 @Component({
   selector: 'app-movie-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, RatingLevelPipe],
+  imports: [CommonModule, FormsModule, RouterLink, RatingLevelPipe],
   template: `
     <section class="movie-detail-shell">
       <button type="button" class="back-btn" (click)="goBack()">Back</button>
@@ -52,8 +54,21 @@ import { RatingLevelPipe } from '../../pipes/rating-level.pipe';
 
             <p class="summary">{{ movie.summary }}</p>
 
+            <div class="edit-grid">
+              <label>
+                <span>Title</span>
+                <input [(ngModel)]="movie.title" />
+              </label>
+
+              <label>
+                <span>Rating</span>
+                <input type="number" min="0" max="10" step="0.1" [(ngModel)]="movie.rating" />
+              </label>
+            </div>
+
             <div class="action-row">
               <a routerLink="/movies">Back to Movies</a>
+              <button type="button" (click)="save(movie)">Save</button>
               <button type="button" class="danger-btn" (click)="deleteMovie(movie)">Delete</button>
             </div>
 
@@ -226,6 +241,32 @@ import { RatingLevelPipe } from '../../pipes/rating-level.pipe';
       line-height: 1.8;
     }
 
+    .edit-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(140px, 0.35fr);
+      gap: 0.75rem;
+    }
+
+    .edit-grid label {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .edit-grid span {
+      color: rgba(255, 248, 225, 0.72);
+      font-size: 0.85rem;
+    }
+
+    .edit-grid input {
+      min-height: 42px;
+      padding: 0 0.75rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      outline: none;
+    }
+
     .action-row,
     .pager-row {
       display: flex;
@@ -275,6 +316,10 @@ import { RatingLevelPipe } from '../../pipes/rating-level.pipe';
       .stats-row {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
+
+      .edit-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 640px) {
@@ -292,19 +337,22 @@ export class MovieDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly movieStateService = inject(MovieStateService);
+  private readonly movieService = inject(MovieService);
   private readonly messageService = inject(MessageService);
   private readonly location = inject(Location);
 
-  readonly defaultPoster = '/assets/default-poster.jpg';
+  readonly defaultPoster = 'assets/default-poster.jpg';
 
   readonly viewModel$ = this.route.paramMap.pipe(
     switchMap(params => {
       const id = Number(params.get('id'));
 
-      return this.movieStateService.movies$.pipe(
-        map(movies => {
+      return combineLatest([
+        this.movieService.getMovieById(id),
+        this.movieStateService.movies$
+      ]).pipe(
+        map(([movie, movies]) => {
           const currentIndex = movies.findIndex(movie => movie.id === id);
-          const movie = currentIndex >= 0 ? movies[currentIndex] : undefined;
 
           return {
             movie,
@@ -329,6 +377,12 @@ export class MovieDetailComponent {
 
   goBack(): void {
     this.location.back();
+  }
+
+  save(movie: Movie): void {
+    this.movieStateService.update(movie).subscribe({
+      next: () => this.location.back()
+    });
   }
 
   handlePosterError(event: Event): void {

@@ -304,7 +304,7 @@ export class MovieAddComponent {
     const payload: Omit<Movie, 'id'> = {
       ...this.newMovie,
       director: selectedDirector?.name || this.newMovie.director || 'Unknown Director',
-      posterUrl: this.newMovie.posterUrl || '/assets/default-poster.jpg'
+      posterUrl: this.newMovie.posterUrl || 'assets/default-poster.jpg'
     };
 
     this.saving = true;

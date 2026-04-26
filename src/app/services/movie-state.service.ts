@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, of, throwError } from 'rxjs';
 import { catchError, finalize, map, tap } from 'rxjs/operators';
 import { Movie } from '../models/movie';
 import { MessageService } from './message.service';
@@ -33,8 +33,8 @@ export class MovieStateService {
 
   private loaded = false;
 
-  load(): void {
-    if (this.loaded) {
+  load(force = false): void {
+    if (this.loaded && !force) {
       return;
     }
 
@@ -43,7 +43,7 @@ export class MovieStateService {
     this.errorSubject.next(null);
 
     this.movieService.getMovies().pipe(
-      tap(list => this.messageService.add(`MovieState: 已加载 ${list.length} 部电影到状态中心`)),
+      tap(list => this.messageService.add(`MovieState: loaded ${list.length} movies into state`)),
       catchError(error => {
         this.loaded = false;
         this.errorSubject.next(this.describeError(error));
@@ -58,25 +58,62 @@ export class MovieStateService {
   }
 
   add(movie: Omit<Movie, 'id'>): Observable<Movie> {
+    const tempId = -Date.now();
+    const tempMovie = { ...movie, id: tempId } as Movie;
+    this.addLocal(tempMovie);
+
     return this.movieService.addMovie(movie).pipe(
-      tap(created => this.addLocal(created))
+      tap(created => {
+        this.moviesSubject.next(
+          this.moviesSubject.value.map(item => (item.id === tempId ? created : item))
+        );
+        this.messageService.add(`MovieState: optimistic add confirmed for ${created.title}`);
+      }),
+      catchError(error => {
+        this.removeLocal(tempId);
+        this.messageService.add('MovieState: optimistic add rolled back');
+        return throwError(() => error);
+      })
     );
   }
 
   update(movie: Movie): Observable<Movie> {
+    const snapshot = this.moviesSubject.value;
+    this.updateLocal(movie);
+
     return this.movieService.updateMovie(movie).pipe(
-      tap(updated => this.updateLocal(updated))
+      tap(updated => this.updateLocal(updated)),
+      catchError(error => {
+        this.moviesSubject.next(snapshot);
+        this.messageService.add(`MovieState: update rolled back for id=${movie.id}`);
+        return throwError(() => error);
+      })
     );
   }
 
   delete(id: number): Observable<boolean> {
+    const snapshot = this.moviesSubject.value;
+    const removed = snapshot.find(movie => movie.id === id);
+    this.removeLocal(id);
+
     return this.movieService.deleteMovie(id).pipe(
-      tap(deleted => {
-        if (deleted) {
-          this.removeLocal(id);
+      tap(() => this.messageService.add(`MovieState: optimistic delete confirmed for id=${id}`)),
+      catchError(error => {
+        if (removed) {
+          this.moviesSubject.next(snapshot);
         }
+        this.messageService.add(`MovieState: delete rolled back for id=${id}`);
+        return throwError(() => error);
       })
     );
+  }
+
+  deleteOptimistic(id: number): void {
+    this.delete(id).subscribe();
+  }
+
+  addOptimistic(movie: Omit<Movie, 'id'>): void {
+    this.add(movie).subscribe();
   }
 
   addLocal(movie: Movie): void {
@@ -97,10 +134,18 @@ export class MovieStateService {
   markAsVisited(id: number): void {
     const snapshot = this.visitedIdsSubject.value.filter(item => item !== id);
     this.visitedIdsSubject.next([id, ...snapshot].slice(0, 5));
-    this.messageService.add(`MovieState: 已记录最近浏览 id=${id}`);
+    this.messageService.add(`MovieState: recorded recent visit id=${id}`);
   }
 
   private describeError(error: unknown): string {
-    return error instanceof Error ? error.message : String(error);
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      return String((error as { message?: unknown }).message);
+    }
+
+    return String(error);
   }
 }
